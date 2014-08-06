@@ -32,14 +32,8 @@ data$date <- as.Date(data$date) ## convert to date class type
 * process data
 
 ```{r}
-data.sumbydate <- aggregate(data$steps, by=list(data$date), FUN=sum) ## total step each day
+data.sumbydate <- aggregate(data$steps, by=list(data$date), FUN=sum) ## aggreagate total step each day
 names(data.sumbydate) <- c("date", "sum")
-
-data.meanbydate <- aggregate(data$steps, by=list(data$date), FUN=mean) ## averaged step each day
-names(data.meanbydate) <- c("date", "mean")
-
-mergedDB <- merge(data, data.sumbydate, by.x = "date", by.y = "date") ## merge sum 
-mergedDB <- merge(mergedDB, data.meanbydate, by.x = "date", by.y = "date") ## merge average
 ```
 
 ## What is mean total number of steps taken per day?
@@ -47,7 +41,9 @@ mergedDB <- merge(mergedDB, data.meanbydate, by.x = "date", by.y = "date") ## me
 * histogram of the total number of steps taken each day
 
 ```{r}
-with(data.sumbydate, hist(sum, breaks = 50))
+with(data.sumbydate, hist(sum, breaks = 50,
+                          main = " Histogram of the total number of steps taken each day",
+                          xlab = "Total number of steps taken each day"))
 ```
 
 * mean total number of steps
@@ -67,7 +63,11 @@ median(data.sumbydate$sum, na.rm = TRUE)
 * a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 ```{r}
-with(mergedDB, plot(date, mean, type = "l"))
+steps.interval.data <- aggregate(data$steps, by=list(data$interval), FUN=mean, na.rm = TRUE) ## aggregate steps by interval, averaging across days
+names(steps.interval.data) <- c("interval", "mean")
+with(steps.interval.data, plot(interval, mean, type = "l",
+                               main = " The number of steps taken per 5-minute interal, averaged across all days",
+                               ylab = "averaged step"))
 ```
 
 ## Imputing missing values
@@ -84,7 +84,9 @@ names(gooddata.sumbydate) <- c("date", "sum")
 ```
 
 ```{r}
-with(gooddata.sumbydate, hist(sum, breaks = 50))
+with(gooddata.sumbydate, hist(sum, breaks = 50,
+                              main = " Histogram of the total number of steps taken each day",
+                              xlab = "Total number of steps taken each day"))
 ```
 
 ```{r}
@@ -111,7 +113,7 @@ data <- transform(data, weekday = factor(weekday)) ## transform weekday variable
 * a time series plot  of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis)
 
 ```{r}
-#install.packages("lattice") ## install this package if required
+#install.packages("lattice")  ## install this package if required
 library(lattice)
 xyplot(steps ~ interval | weekday, data = data, type = "l", layout = c(1,2))
 ```
