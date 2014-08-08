@@ -1,6 +1,5 @@
 # Reproducible Research: Peer Assessment 1
 
-
 ## Loading and preprocessing the data
 
 This script and the dataset file `"activity.zip"` are located in the GitHub repository and therefore
@@ -47,7 +46,7 @@ names(data.sumbydate) <- c("date", "sum")
 
 
 ```r
-with(data.sumbydate, hist(sum, breaks = 50,
+with(data.sumbydate, hist(sum, breaks = 10,
                           main = " Histogram of the total number of steps taken each day",
                           xlab = "Total number of steps taken each day"))
 ```
@@ -91,6 +90,19 @@ with(steps.interval.data, plot(interval, mean, type = "l",
 
 ![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
 
+* Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+
+```r
+# Interval 835 contains the maximum number of steps on average of 206.1698
+steps.interval.data[which.max(steps.interval.data$mean),]
+```
+
+```
+##     interval  mean
+## 104      835 206.2
+```
+
 ## Imputing missing values
 
 
@@ -115,12 +127,12 @@ names(gooddata.sumbydate) <- c("date", "sum")
 
 
 ```r
-with(gooddata.sumbydate, hist(sum, breaks = 50,
+with(gooddata.sumbydate, hist(sum, breaks = 10,
                               main = " Histogram of the total number of steps taken each day",
                               xlab = "Total number of steps taken each day"))
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
 
 
 ```r
@@ -145,15 +157,15 @@ median(gooddata.sumbydate$sum, na.rm = TRUE)
 
 
 ```r
-days <- weekdays(data$date, abbreviate = TRUE) ## get weekdays (character-type like Mon for Monday)
-data$days <- days ## add new column to dataset
+days <- weekdays(gooddata$date, abbreviate = TRUE) ## get weekdays (character-type like Mon for Monday)
+gooddata$days <- days ## add new column to dataset
 func <- function(x){ 
         if (x == "Sat" | x == "Sun") ("weekend") ## weekend?
         else ("weekday") ## weekday?
 }
-weekday <- lapply(data$days, func)
-data$weekday <- paste(weekday)
-data <- transform(data, weekday = factor(weekday)) ## transform weekday variable into factor variable
+weekday <- lapply(gooddata$days, func)
+gooddata$weekday <- paste(weekday)
+gooddata <- transform(gooddata, weekday = factor(weekday)) ## transform weekday variable into factor variable
 ```
 
 * a time series plot  of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis)
@@ -162,7 +174,9 @@ data <- transform(data, weekday = factor(weekday)) ## transform weekday variable
 ```r
 #install.packages("lattice")  ## install this package if required
 library(lattice)
-xyplot(steps ~ interval | weekday, data = data, type = "l", layout = c(1,2))
+gooddata <- transform(gooddata, weekday = factor(weekday))
+agg.gooddata <- aggregate(steps ~ interval + weekday, data = gooddata, FUN=mean)
+xyplot(steps ~ interval | weekday, data = agg.gooddata, type = "l", layout = c(1,2))
 ```
 
-![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
